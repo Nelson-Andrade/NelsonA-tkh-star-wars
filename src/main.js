@@ -12,7 +12,9 @@ searchInput.addEventListener('input', function (e) {
   const input = e.target.value
   console.log(input)
   // searchForCharacter(input)
-  debouncedCharacterSearch(input)
+  if(input.length >= 1){
+    debouncedCharacterSearch(input)
+  }  
 })
 
 const results = document.getElementById('results')
@@ -36,7 +38,11 @@ document.addEventListener('DOMContentLoaded', function () {
     .then(resp => resp.json())
     .then(data => {
       console.log(data)
-      displayCharacters(data.results)
+      if (data.count >= 1) {
+        displayCharacters(data.results)
+       } else {
+        displayError()
+       }       
 
       // const listOfCharacterNames = data.results.map(character => {
       //   return `<li>${character.name}</li>`
@@ -47,6 +53,7 @@ document.addEventListener('DOMContentLoaded', function () {
     .catch(e => {
       console.log(e)
       results.innerText = 'The characters you seek are not here'
+      displayError()
     })
 })
 
@@ -56,7 +63,12 @@ async function searchForCharacter (query) {
   ).then(resp => resp.json())
 
   console.log(characterData)
-  displayCharacters(characterData.results)
+
+  if (characterData.count >= 1) {
+    displayCharacters(characterData.results)
+   } else {
+    displayError()
+   }   
 }
 
 const debouncedCharacterSearch = debounce(searchForCharacter, 500)
@@ -106,6 +118,7 @@ function openCharacterDialog (characterApiUrl) {
       console.log(err)
       // If the fetch fails overall, then we will display this message
       dialogContent.innerHTML = 'Failed to load data.'
+      displayError()
     })
 }
 
@@ -126,4 +139,8 @@ dialog.addEventListener("close", () => {
 closeDialogButton.addEventListener('click', () => {
   dialog.close();
 });
+
+function displayError() {
+  results.innerHTML = "<ul class='characters'><li>The characters you seek are not here</li></ul>"
+}
 
